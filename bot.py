@@ -25,9 +25,9 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
-CRICKET_API_KEY   = os.environ["CRICKET_API_KEY"]
-TELEGRAM_TOKEN    = os.environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHAT_ID  = os.environ["TELEGRAM_CHAT_ID"]   # channel/group id, e.g. -1001234567890
+CRICKET_API_KEY   = os.environ["c9bd324007d1a3e531155efb21abade9b85f6cc6cd7dd499bf27744ea4eff52e"]
+TELEGRAM_TOKEN    = os.environ["8753904006:AAEqdJQEl6GuwjWewn3olpX4iPlB5iq8esE"]
+TELEGRAM_CHAT_ID  = os.environ["1257999644"]   # channel/group id, e.g. -1001234567890
 
 # League IDs to watch  (add more as needed)
 # IPL 2024/25 league_key is typically 968 — verify with /Leagues endpoint on first run
