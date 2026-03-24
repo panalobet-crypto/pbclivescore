@@ -36,7 +36,7 @@ POLL_INTERVAL_IDLE    = int(os.environ.get("POLL_INTERVAL_IDLE", "300"))   # sec
 
 STATE_FILE = Path(os.environ.get("STATE_FILE", "/data/state.json"))
 
-API_BASE = "https://apiv2.allsportsapi.com/cricket"
+API_BASE = "https://apiv2.allsportsapi.com/cricket/"
 
 # ── State helpers ─────────────────────────────────────────────────────────────
 
@@ -64,6 +64,7 @@ async def fetch_livescore(client: httpx.AsyncClient) -> list[dict]:
             API_BASE,
             params={"met": "Livescore", "APIkey": CRICKET_API_KEY},
             timeout=15,
+            follow_redirects=True,
         )
         r.raise_for_status()
         data = r.json()
@@ -87,6 +88,7 @@ async def fetch_today_fixtures(client: httpx.AsyncClient) -> list[dict]:
                 "to": today,
             },
             timeout=15,
+            follow_redirects=True,
         )
         r.raise_for_status()
         data = r.json()
