@@ -29,7 +29,7 @@ CRICKET_API_KEY   = "c9bd324007d1a3e531155efb21abade9b85f6cc6cd7dd499bf27744ea4e
 TELEGRAM_TOKEN    = "8753904006:AAEqdJQEl6GuwjWewn3olpX4iPlB5iq8esE"
 TELEGRAM_CHAT_ID  = "1257999644"
 
-WATCHED_LEAGUE_IDS = {"13421"}
+WATCHED_LEAGUE_IDS = {"745", "8453", "8062"}
 
 POLL_INTERVAL_LIVE    = int(os.environ.get("POLL_INTERVAL_LIVE", "60"))    # seconds
 POLL_INTERVAL_IDLE    = int(os.environ.get("POLL_INTERVAL_IDLE", "300"))   # seconds
@@ -256,7 +256,7 @@ def extract_wicket_count(m: dict) -> int:
 
 
 def is_watched(m: dict) -> bool:
-    return str(m.get("league_key", "")) in WATCHED_LEAGUE_IDS
+    return True  # Push all live matches regardless of league
 
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
