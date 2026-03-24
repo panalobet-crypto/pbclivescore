@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # ── Config ────────────────────────────────────────────────────────────────────
 CRICKET_API_KEY   = "c9bd324007d1a3e531155efb21abade9b85f6cc6cd7dd499bf27744ea4eff52e"
 TELEGRAM_TOKEN    = "8753904006:AAEqdJQEl6GuwjWewn3olpX4iPlB5iq8esE"
-TELEGRAM_CHAT_ID  = "1257999644"
+TELEGRAM_CHAT_ID  = "-1002918240048"
 
 WATCHED_LEAGUE_IDS = {"745", "8453", "8062", "10533", "746"}
 
