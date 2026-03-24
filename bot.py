@@ -29,7 +29,7 @@ CRICKET_API_KEY   = "c9bd324007d1a3e531155efb21abade9b85f6cc6cd7dd499bf27744ea4e
 TELEGRAM_TOKEN    = "8753904006:AAEqdJQEl6GuwjWewn3olpX4iPlB5iq8esE"
 TELEGRAM_CHAT_ID  = "1257999644"
 
-WATCHED_LEAGUE_IDS = {"745", "8453", "8062"}
+WATCHED_LEAGUE_IDS = {"745", "8453", "8062", "10533"}
 
 POLL_INTERVAL_LIVE    = int(os.environ.get("POLL_INTERVAL_LIVE", "60"))    # seconds
 POLL_INTERVAL_IDLE    = int(os.environ.get("POLL_INTERVAL_IDLE", "300"))   # seconds
@@ -225,21 +225,26 @@ async def send(bot: Bot, text: str):
 
 # ── Match state extractor ─────────────────────────────────────────────────────
 
+def _vals(obj) -> list:
+    """Return values whether obj is dict or list."""
+    if isinstance(obj, dict):
+        return list(obj.values())
+    if isinstance(obj, list):
+        return obj
+    return []
+
+
 def extract_over_count(m: dict) -> Optional[str]:
-    """
-    Extract current over from extra block or status_info.
-    Returns string like '16.1' or None.
-    """
+    """Extract current over from extra block or comments."""
     extra = m.get("extra", {})
-    for inn_data in extra.values():
+    for inn_data in _vals(extra):
         if isinstance(inn_data, dict):
             total_overs = inn_data.get("total_overs") or inn_data.get("total", "")
-            # "231 ( 96 )" pattern → grab the number in parens
             if total_overs and "(" in str(total_overs):
-                return total_overs
-    # Fallback: parse from latest comment overs field
+                return str(total_overs)
+    # Fallback: latest comment overs field
     comments = m.get("comments", {})
-    for inn_comments in comments.values():
+    for inn_comments in _vals(comments):
         if isinstance(inn_comments, list) and inn_comments:
             return inn_comments[0].get("overs")
     return None
@@ -249,7 +254,7 @@ def extract_wicket_count(m: dict) -> int:
     """Count total wickets fallen across all innings from scorecard."""
     total = 0
     scorecard = m.get("scorecard", {})
-    for inn_players in scorecard.values():
+    for inn_players in _vals(scorecard):
         if isinstance(inn_players, list):
             for player in inn_players:
                 if player.get("type") == "Batsman" and player.get("status", "") not in ("not out", ""):
@@ -258,7 +263,7 @@ def extract_wicket_count(m: dict) -> int:
 
 
 def is_watched(m: dict) -> bool:
-    return True  # Push all live matches regardless of league
+    return str(m.get("league_key", "")) in WATCHED_LEAGUE_IDS
 
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
