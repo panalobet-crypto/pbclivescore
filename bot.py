@@ -316,16 +316,17 @@ async def main():
                             state[eid]["last_wickets"] = cur_wickets
                             state[eid]["last_over"]    = cur_over
 
-                        # New over started (over string changed)
+                        # New over completed — push whenever the integer over number changes
+                        # Use modulo to handle innings reset (e.g. 50 → 0 → 1 → 2...)
                         elif cur_over and cur_over != prev_over:
-                            # Only push on whole overs (ball == 6 or overs string has .0 / changed integer part)
                             try:
                                 cur_int  = int(str(cur_over).split(".")[0])
-                                prev_int = int(str(prev_over or "0").split(".")[0]) if prev_over else 0
-                                if cur_int > prev_int:
+                                prev_int = int(str(prev_over or "0").split(".")[0]) if prev_over else -1
+                                # Push if: over increased, OR innings reset (cur < prev means new innings)
+                                if cur_int != prev_int:
                                     tasks.append(send(bot, fmt_score_update(m, "over")))
                             except Exception:
-                                pass
+                                tasks.append(send(bot, fmt_score_update(m, "over")))
                             state[eid]["last_over"] = cur_over
 
                     # ── Match END ──────────────────────────────────────────────
