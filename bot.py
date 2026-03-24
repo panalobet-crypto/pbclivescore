@@ -32,7 +32,7 @@ TELEGRAM_CHAT_ID  = os.environ["1257999644"]   # channel/group id, e.g. -1001234
 # League IDs to watch  (add more as needed)
 # IPL 2024/25 league_key is typically 968 — verify with /Leagues endpoint on first run
 WATCHED_LEAGUE_IDS = set(
-    os.environ.get("WATCHED_LEAGUE_IDS", "13421").split(",")
+    os.environ.get("WATCHED_LEAGUE_IDS", "10533").split(",")
 )
 
 POLL_INTERVAL_LIVE    = int(os.environ.get("POLL_INTERVAL_LIVE", "60"))    # seconds
