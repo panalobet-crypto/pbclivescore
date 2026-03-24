@@ -29,7 +29,7 @@ CRICKET_API_KEY   = "c9bd324007d1a3e531155efb21abade9b85f6cc6cd7dd499bf27744ea4e
 TELEGRAM_TOKEN    = "8753904006:AAEqdJQEl6GuwjWewn3olpX4iPlB5iq8esE"
 TELEGRAM_CHAT_ID  = "1257999644"
 
-WATCHED_LEAGUE_IDS = {"745", "8453", "8062", "10533"}
+WATCHED_LEAGUE_IDS = {"745", "8453", "8062", "10533", "746"}
 
 POLL_INTERVAL_LIVE    = int(os.environ.get("POLL_INTERVAL_LIVE", "60"))    # seconds
 POLL_INTERVAL_IDLE    = int(os.environ.get("POLL_INTERVAL_IDLE", "300"))   # seconds
@@ -126,14 +126,14 @@ def fmt_match_start(m: dict) -> str:
     match_type = m.get("event_type", "")
 
     lines = [
-        f"🏏 *MATCH STARTED*",
+        f"🏏 *ম্যাচ শুরু হয়েছে!*",
         f"",
-        f"*{home}* vs *{away}*",
+        f"*{home}* বনাম *{away}*",
         f"🏆 {league}" + (f" — {round_}" if round_ else ""),
         f"📍 {stadium}" if stadium else "",
         f"🎯 {match_type}" if match_type else "",
         f"",
-        f"🪙 Toss: {toss}" if toss else "",
+        f"🪙 টস: {toss}" if toss else "",
     ]
     return "\n".join(l for l in lines if l is not None and l != "")
 
@@ -150,7 +150,7 @@ def fmt_score_update(m: dict, trigger: str) -> str:
     # Last ball commentary
     comments = m.get("comments", {})
     last_ball = ""
-    for inn_comments in comments.values():
+    for inn_comments in _vals(comments):
         if isinstance(inn_comments, list) and inn_comments:
             last_ball = inn_comments[0].get("post", "")
             break
@@ -158,16 +158,21 @@ def fmt_score_update(m: dict, trigger: str) -> str:
     # Wickets this innings
     wickets_str = ""
     wickets = m.get("wickets", {})
-    for inn_name, wkts in wickets.items():
+    for inn_name, wkts in (wickets.items() if isinstance(wickets, dict) else []):
         if isinstance(wkts, list) and wkts:
             latest = wkts[0]
-            wickets_str = f"💥 Wicket: {latest.get('batsman','').strip()} at {latest.get('score','')}"
+            wickets_str = f"💥 উইকেট: {latest.get('batsman','').strip()} — {latest.get('score','')}"
             break
 
-    icon = "📊" if trigger == "over" else "💥" if trigger == "wicket" else "📊"
+    if trigger == "wicket":
+        icon = "💥"
+        title = "*উইকেট পড়েছে!*"
+    else:
+        icon = "📊"
+        title = "*লাইভ স্কোর*"
 
     lines = [
-        f"{icon} *LIVE UPDATE*",
+        f"{icon} {title}",
         f"",
         f"*{home}*  {h_score}",
         f"*{away}*  {a_score}",
@@ -186,19 +191,19 @@ def fmt_match_end(m: dict) -> str:
     away  = m["event_away_team"]
     h_score = m.get("event_home_final_result", "-")
     a_score = m.get("event_away_final_result", "-")
-    status_info = m.get("event_status_info", "FINAL")
+    status_info = m.get("event_status_info", "চূড়ান্ত ফলাফল")
     mom = m.get("event_man_of_match", "")
     league = m.get("league_name", "")
     round_ = m.get("league_round", "")
 
     lines = [
-        f"🏁 *MATCH ENDED*",
+        f"🏁 *ম্যাচ শেষ!*",
         f"",
         f"*{home}*  {h_score}",
         f"*{away}*  {a_score}",
         f"",
         f"🎯 *{status_info}*",
-        f"⭐ Player of the Match: {mom}" if mom else "",
+        f"⭐ ম্যাচ সেরা খেলোয়াড়: {mom}" if mom else "",
         f"",
         f"🏆 {league}" + (f" | {round_}" if round_ else ""),
     ]
@@ -263,7 +268,7 @@ def extract_wicket_count(m: dict) -> int:
 
 
 def is_watched(m: dict) -> bool:
-    return str(m.get("league_key", "")) in WATCHED_LEAGUE_IDS
+    return True  # Push all live matches
 
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
