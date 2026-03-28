@@ -318,30 +318,32 @@ async def main():
                         prev_over    = prev.get("last_over")
                         prev_wickets = prev.get("last_wickets", 0)
 
+                        # Current score snapshot
+                        cur_score = (
+                            m.get("event_home_final_result", ""),
+                            m.get("event_away_final_result", ""),
+                            m.get("event_status_info", ""),
+                        )
+                        prev_score = prev.get("last_score")
+
                         # Wicket fell
                         if cur_wickets > prev_wickets:
                             tasks.append(send(bot, fmt_score_update(m, "wicket")))
                             state[eid]["last_wickets"] = cur_wickets
                             state[eid]["last_over"]    = cur_over
-                            state[eid]["last_push_time"] = import_time()
+                            state[eid]["last_score"]   = cur_score
 
-                        # New over completed
-                        elif cur_over and cur_over != prev_over:
+                        # Score or over changed
+                        elif cur_score != prev_score or (cur_over and cur_over != prev_over):
                             try:
-                                cur_int  = int(str(cur_over).split(".")[0])
+                                cur_int  = int(str(cur_over).split(".")[0]) if cur_over else -1
                                 prev_int = int(str(prev_over or "0").split(".")[0]) if prev_over else -1
-                                if cur_int != prev_int:
+                                if cur_int != prev_int or cur_score != prev_score:
                                     tasks.append(send(bot, fmt_score_update(m, "over")))
-                                    state[eid]["last_push_time"] = import_time()
                             except Exception:
                                 tasks.append(send(bot, fmt_score_update(m, "over")))
-                                state[eid]["last_push_time"] = import_time()
-                            state[eid]["last_over"] = cur_over
-
-                        # Force push every poll if no wicket/over change
-                        else:
-                            tasks.append(send(bot, fmt_score_update(m, "over")))
-                            state[eid]["last_push_time"] = import_time()
+                            state[eid]["last_over"]  = cur_over
+                            state[eid]["last_score"] = cur_score
 
                     # ── Match END ──────────────────────────────────────────────
                     if is_finished and not prev.get("notified_end"):
