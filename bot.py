@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # ── Config ────────────────────────────────────────────────────────────────────
 CRICKET_API_KEY   = "c9bd324007d1a3e531155efb21abade9b85f6cc6cd7dd499bf27744ea4eff52e"
 TELEGRAM_TOKEN    = "8753904006:AAEqdJQEl6GuwjWewn3olpX4iPlB5iq8esE"
-TELEGRAM_CHAT_ID  = "-1002918240048"
+TELEGRAM_CHAT_IDS = ["-1002918240048", "-1002082661478"]
 
 WATCHED_LEAGUE_IDS = {"745", "8453", "8062", "10533", "746"}
 
@@ -213,19 +213,20 @@ def fmt_match_end(m: dict) -> str:
 # ── Telegram sender ───────────────────────────────────────────────────────────
 
 async def send(bot: Bot, text: str):
-    """Send message with retry."""
-    for attempt in range(3):
-        try:
-            await bot.send_message(
-                chat_id=TELEGRAM_CHAT_ID,
-                text=text,
-                parse_mode=ParseMode.MARKDOWN,
-            )
-            log.info("Sent: %s", text[:60].replace("\n", " "))
-            return
-        except Exception as e:
-            log.warning("Send attempt %d failed: %s", attempt + 1, e)
-            await asyncio.sleep(2 ** attempt)
+    """Send message to all chat IDs with retry."""
+    for chat_id in TELEGRAM_CHAT_IDS:
+        for attempt in range(3):
+            try:
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text=text,
+                    parse_mode=ParseMode.MARKDOWN,
+                )
+                log.info("Sent to %s: %s", chat_id, text[:60].replace("\n", " "))
+                break
+            except Exception as e:
+                log.warning("Send to %s attempt %d failed: %s", chat_id, attempt + 1, e)
+                await asyncio.sleep(2 ** attempt)
 
 
 # ── Match state extractor ─────────────────────────────────────────────────────
