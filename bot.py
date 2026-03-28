@@ -31,7 +31,7 @@ TELEGRAM_CHAT_ID  = "-1002918240048"
 
 WATCHED_LEAGUE_IDS = {"745", "8453", "8062", "10533", "746"}
 
-POLL_INTERVAL_LIVE    = int(os.environ.get("POLL_INTERVAL_LIVE", "60"))    # seconds
+POLL_INTERVAL_LIVE    = int(os.environ.get("POLL_INTERVAL_LIVE", "3"))     # seconds
 POLL_INTERVAL_IDLE    = int(os.environ.get("POLL_INTERVAL_IDLE", "300"))   # seconds
 
 STATE_FILE = Path(os.environ.get("STATE_FILE", "/data/state.json"))
