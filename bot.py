@@ -5,6 +5,8 @@ Tracks: IPL + Bangladesh leagues
 """
 
 import asyncio
+import time as _time
+def import_time(): return _time.time()
 import json
 import logging
 import os
@@ -321,19 +323,25 @@ async def main():
                             tasks.append(send(bot, fmt_score_update(m, "wicket")))
                             state[eid]["last_wickets"] = cur_wickets
                             state[eid]["last_over"]    = cur_over
+                            state[eid]["last_push_time"] = import_time()
 
-                        # New over completed — push whenever the integer over number changes
-                        # Use modulo to handle innings reset (e.g. 50 → 0 → 1 → 2...)
+                        # New over completed
                         elif cur_over and cur_over != prev_over:
                             try:
                                 cur_int  = int(str(cur_over).split(".")[0])
                                 prev_int = int(str(prev_over or "0").split(".")[0]) if prev_over else -1
-                                # Push if: over increased, OR innings reset (cur < prev means new innings)
                                 if cur_int != prev_int:
                                     tasks.append(send(bot, fmt_score_update(m, "over")))
+                                    state[eid]["last_push_time"] = import_time()
                             except Exception:
                                 tasks.append(send(bot, fmt_score_update(m, "over")))
+                                state[eid]["last_push_time"] = import_time()
                             state[eid]["last_over"] = cur_over
+
+                        # Force push every poll if no wicket/over change
+                        else:
+                            tasks.append(send(bot, fmt_score_update(m, "over")))
+                            state[eid]["last_push_time"] = import_time()
 
                     # ── Match END ──────────────────────────────────────────────
                     if is_finished and not prev.get("notified_end"):
