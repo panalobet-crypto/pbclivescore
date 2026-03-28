@@ -268,7 +268,7 @@ def extract_wicket_count(m: dict) -> int:
 
 
 def is_watched(m: dict) -> bool:
-    return True  # Push all live matches
+    return str(m.get("league_key", "")) == "745"  # IPL only
 
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
