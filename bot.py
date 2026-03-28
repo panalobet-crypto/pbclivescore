@@ -318,11 +318,10 @@ async def main():
                         prev_over    = prev.get("last_over")
                         prev_wickets = prev.get("last_wickets", 0)
 
-                        # Current score snapshot
+                        # Current score snapshot (only scores, not status_info which changes every ball)
                         cur_score = (
                             m.get("event_home_final_result", ""),
                             m.get("event_away_final_result", ""),
-                            m.get("event_status_info", ""),
                         )
                         prev_score = prev.get("last_score")
 
@@ -333,15 +332,15 @@ async def main():
                             state[eid]["last_over"]    = cur_over
                             state[eid]["last_score"]   = cur_score
 
-                        # Score or over changed
-                        elif cur_score != prev_score or (cur_over and cur_over != prev_over):
+                        # Only push when a new over completes (integer part changes)
+                        elif cur_over and cur_over != prev_over:
                             try:
-                                cur_int  = int(str(cur_over).split(".")[0]) if cur_over else -1
+                                cur_int  = int(str(cur_over).split(".")[0])
                                 prev_int = int(str(prev_over or "0").split(".")[0]) if prev_over else -1
-                                if cur_int != prev_int or cur_score != prev_score:
+                                if cur_int != prev_int:
                                     tasks.append(send(bot, fmt_score_update(m, "over")))
                             except Exception:
-                                tasks.append(send(bot, fmt_score_update(m, "over")))
+                                pass
                             state[eid]["last_over"]  = cur_over
                             state[eid]["last_score"] = cur_score
 
